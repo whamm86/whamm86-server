@@ -29,6 +29,7 @@ using Contracts.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 // using Newtonsoft.Json.Schema;
+using Corvus.Json.JsonSchema;
 using HotChocolate.Types.Relay;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Text.Json;
@@ -40,6 +41,8 @@ using System.Drawing;
 using static AasxServerDB.CrudOperator;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Corvus.Json;
+using NodaTime;
 
 public class CombinedValue
 {
@@ -2388,20 +2391,22 @@ public partial class Query
                     jsonSchema = System.IO.File.ReadAllText("jsonschema-query.txt");
                     string jsonData = expression;
 
-                    /*
-                    // NewtonSoft works, but is AGPL3
+                    bool isValid = false;
+
                     // Schema parsen
-                    JSchema schema = JSchema.Parse(jsonSchema);
-
+                    var schema = Corvus.Json.JsonSchema.Draft7.Schema.Parse(jsonSchema);
                     // JSON-Daten parsen
-                    JObject jsonObject = JObject.Parse(jsonData);
+                    var json = Corvus.Json.JsonAny.Parse(jsonData);
+                    var result = json.Validate(ValidationContext.ValidContext, ValidationLevel.Detailed);
 
-                    // Validierung durchfÃ¼hren
-                    IList<string> validationErrors = new List<string>();
-                    bool isValid = jsonObject.IsValid(schema, out validationErrors);
-                    */
+                    var result2 = schema.Validate(result);
 
-                    var isValid = true;
+                    // Output the result
+                    if (result2.IsValid)
+                    {
+                        Console.WriteLine("JSON is valid.");
+                        isValid = true;
+                    }
 
                     if (isValid)
                     {
