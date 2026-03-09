@@ -1448,6 +1448,7 @@ public partial class Query
             foreach (var s1 in split1)
             {
                 var field = s1.Split([' ', ')']).First();
+                field = field.Split(".").First();
                 field = char.ToUpper(field[0]) + field.Substring(1);
                 if (!field.StartsWith('(') && !fields.Contains(field))
                 {
